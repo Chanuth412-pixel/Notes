@@ -1,4 +1,4 @@
-package com.example.Notes.config;
+package com.example.Notes.security;
 
 public class SecurityConfig {
     
