@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Objects;
 
 @Service
 public class CategoryService {
@@ -19,14 +20,17 @@ public class CategoryService {
     }
 
     public Optional<Category> getCategoryById(Long id) {
+        Objects.requireNonNull(id, "id must not be null");
         return categoryRepository.findById(id);
     }
 
     public Category createOrUpdateCategory(Category category) {
+        Objects.requireNonNull(category, "category must not be null");
         return categoryRepository.save(category);
     }
 
     public void deleteCategory(Long id) {
+        Objects.requireNonNull(id, "id must not be null");
         categoryRepository.deleteById(id);
     }
 }

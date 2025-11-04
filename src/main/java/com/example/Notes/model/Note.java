@@ -1,6 +1,7 @@
 package com.example.Notes.model;
 
 import jakarta.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -18,8 +19,25 @@ public class Note {
     private Category category;
 
     // A note can have multiple tags and vice versa (Many to Many relationship)
+    // Clean join table configuration with schema recreation
     @ManyToMany
-    private Set<Tag> tags;
+    @JoinTable(
+        name = "note_tags",
+        joinColumns = @JoinColumn(name = "note_id"),
+        inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private Set<Tag> tags = new HashSet<>();
+
+    // Constructors
+    public Note() {
+        this.tags = new HashSet<>();
+    }
+
+    public Note(String title, String content) {
+        this();
+        this.title = title;
+        this.content = content;
+    }
 
     // Getters and Setters
     public Long getId() {
