@@ -25,10 +25,10 @@ public class SearchController {
         return ResponseEntity.ok(results);
     }
     
-    @GetMapping("/by-tag")
+    @GetMapping("/by-tag") //tagName is the query parameter(after ?)
     public ResponseEntity<List<Note>> searchByTag(@RequestParam String tagName) {
         List<Note> results = noteService.getNotesByTag(tagName);
-        return ResponseEntity.ok(results);
+        return ResponseEntity.ok(results); //Request parm - Takes the qp and pass it as String to fn
     }
     
     @GetMapping("/by-tags")

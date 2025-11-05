@@ -11,20 +11,20 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import java.util.List;
 import java.util.Optional;
 
-@RestController
-@RequestMapping("/api/notes")
+@RestController //Handling HTTP requests and return responses
+@RequestMapping("/api/notes") //Base URL for all endpoints in this controller
 @CrossOrigin(origins = "http://localhost:3000")
 public class NoteController {
 
     @Autowired
     private NoteService noteService;
 
-    @GetMapping
+    @GetMapping //No path variable
     public List<Note> getAllNotes() {
         return noteService.getAllNotes();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id}") // {id} is a path variable (Differntiate by that)
     public ResponseEntity<Note> getNoteById(@PathVariable Long id) {
         Optional<Note> note = noteService.getNoteById(id);
         return note.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
