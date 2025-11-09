@@ -1,6 +1,8 @@
 package com.example.Notes.model;
 
 import jakarta.persistence.*;
+
+import java.security.PrivateKey;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,6 +15,8 @@ public class Note {
 
     private String title;  // The title of the note
     private String content; // The content of the note
+
+    private boolean archived;
 
     // Many notes belong to one category
     @ManyToOne
@@ -79,4 +83,16 @@ public class Note {
     public void setTags(Set<Tag> tags) {
         this.tags = tags;
     }
+    
+    //Getters and Setters for archived
+    public boolean isArchived(){
+        return archived;
+    }
+
+    public void setArchived(boolean status){
+        this.archived = status;
+    }
+
+   
+    
 }

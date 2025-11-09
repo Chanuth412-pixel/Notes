@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +21,14 @@ public class NoteController {
     @GetMapping //No path variable
     public List<Note> getAllNotes() {
         return noteService.getAllNotes();
+    }
+
+    @PatchMapping("/{id}/archived")
+    public ResponseEntity<Note> archiveNoteStatus(@PathVaiable id, @ResponseParam boolean archived){
+        return NoteService.archiveNoteStatus(id,archived)
+          .map (ResponseEntity::ok);
+            .orElseGet(() -> ResponseEntity.notFound().build());
+        
     }
 
     @GetMapping("/{id}") // {id} is a path variable (Differntiate by that)
