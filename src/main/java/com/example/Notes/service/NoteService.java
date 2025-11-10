@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.Objects;
 
 @Service
 public class NoteService {
@@ -135,4 +134,16 @@ public class NoteService {
                 .limit(10)
                 .collect(Collectors.toList());
     }
+
+    //Set the archived status of a note
+    @Transactional
+    public Optional<Note> archiveNoteStatus(Long id,boolean archived){
+        return noteRepository.findById(id)
+            .map(note -> {
+                note.setArchived(archived);
+                return noteRepository.save(note);
+            });
+    }
+
+
 }
