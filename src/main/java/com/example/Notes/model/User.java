@@ -3,7 +3,6 @@ package com.example.Notes.model;
 import jakarta.persistence.*;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -69,7 +68,7 @@ public class User implements UserDetails{
     public void setPassword(String password){
         this.password = password;
     }
-    
+
 
     
     
