@@ -24,11 +24,11 @@ public class NoteController {
     }
 
     @PatchMapping("/{id}/archived")
-    public ResponseEntity<Note> archiveNoteStatus(@PathVaiable id, @ResponseParam boolean archived){
-        return NoteService.archiveNoteStatus(id,archived)
-          .map (ResponseEntity::ok);
-            .orElseGet(() -> ResponseEntity.notFound().build());
-        
+    public ResponseEntity<Note> archiveNoteStatus(@PathVariable Long id, @RequestParam boolean archived){
+        return noteService.archiveNoteStatus(id, archived)
+          .map (ResponseEntity::ok)
+          .orElseGet(() -> ResponseEntity.notFound().build());
+
     }
 
     @GetMapping("/{id}") // {id} is a path variable (Differntiate by that)
