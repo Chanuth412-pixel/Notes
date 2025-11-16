@@ -16,16 +16,21 @@ public class NoteService {
 
     @Autowired
     private NoteRepository noteRepository;
-    
+
     @Autowired
     private TagRepository tagRepository;
 
     // Method to save or update a note
-    @Transactional
+    @Transactional // To Ensure operations are atomic(If anything fails, rollback)
     public Note createOrUpdateNote(Note note) {
-        Objects.requireNonNull(note, "note must not be null");
-        
+        Objects.requireNonNull(note, "note must not be null"); // NullpointerException
+
         // Resolve tags: convert transient tag objects to managed entities
+        Set<Tag> managedTags = tagService.resolveTags(note.getTags());
+        note.setTags(managedTags);
+        return noteRepository.save(note);
+
+        // Should Refactor this
         if (note.getTags() != null && !note.getTags().isEmpty()) {
             Set<Tag> managedTags = new HashSet<>();
             for (Tag tag : note.getTags()) {
@@ -53,13 +58,14 @@ public class NoteService {
             }
             note.setTags(managedTags);
         }
-        
+
         return noteRepository.save(note);
     }
 
     // Method to get all notes
     public List<Note> getAllNotes() {
-        // Use fetch-join repository method so tags are loaded in the same transaction and
+        // Use fetch-join repository method so tags are loaded in the same transaction
+        // and
         // Jackson can safely serialize Note -> tags without triggering lazy-loading
         return noteRepository.findAllWithTags();
     }
@@ -90,7 +96,8 @@ public class NoteService {
                         matches &= (n.getCategory() != null && Objects.equals(n.getCategory().getId(), categoryId));
                     }
                     if (tagName != null && !tagName.isBlank()) {
-                        matches &= (n.getTags() != null && n.getTags().stream().anyMatch(t -> tagName.equalsIgnoreCase(t.getName())));
+                        matches &= (n.getTags() != null
+                                && n.getTags().stream().anyMatch(t -> tagName.equalsIgnoreCase(t.getName())));
                     }
                     return matches;
                 })
@@ -99,19 +106,24 @@ public class NoteService {
 
     // Get notes by a single tag name
     public List<Note> getNotesByTag(String tagName) {
-        if (tagName == null || tagName.isBlank()) return Collections.emptyList();
+        if (tagName == null || tagName.isBlank())
+            return Collections.emptyList();
         return noteRepository.findAll().stream()
-                .filter(n -> n.getTags() != null && n.getTags().stream().anyMatch(t -> tagName.equalsIgnoreCase(t.getName())))
+                .filter(n -> n.getTags() != null
+                        && n.getTags().stream().anyMatch(t -> tagName.equalsIgnoreCase(t.getName())))
                 .collect(Collectors.toList());
     }
 
-    // Get notes by multiple tag names; if requireAll is true, note must have all tags
+    // Get notes by multiple tag names; if requireAll is true, note must have all
+    // tags
     public List<Note> getNotesByTags(List<String> tagNames, boolean requireAll) {
-        if (tagNames == null || tagNames.isEmpty()) return Collections.emptyList();
+        if (tagNames == null || tagNames.isEmpty())
+            return Collections.emptyList();
         Set<String> lowerTags = tagNames.stream().map(s -> s.toLowerCase(Locale.ROOT)).collect(Collectors.toSet());
         return noteRepository.findAll().stream()
                 .filter(n -> {
-                    if (n.getTags() == null) return false;
+                    if (n.getTags() == null)
+                        return false;
                     Set<String> noteTagNames = n.getTags().stream()
                             .map(Tag::getName)
                             .filter(Objects::nonNull)
@@ -120,14 +132,17 @@ public class NoteService {
                     if (requireAll) {
                         return noteTagNames.containsAll(lowerTags);
                     } else {
-                        for (String t : lowerTags) if (noteTagNames.contains(t)) return true;
+                        for (String t : lowerTags)
+                            if (noteTagNames.contains(t))
+                                return true;
                         return false;
                     }
                 })
                 .collect(Collectors.toList());
     }
 
-    // Return recent notes (simple implementation: sort by id desc and return up to 10)
+    // Return recent notes (simple implementation: sort by id desc and return up to
+    // 10)
     public List<Note> getRecentNotes() {
         return noteRepository.findAll().stream()
                 .sorted(Comparator.comparing(Note::getId, Comparator.nullsLast(Comparator.naturalOrder())).reversed())
@@ -135,15 +150,14 @@ public class NoteService {
                 .collect(Collectors.toList());
     }
 
-    //Set the archived status of a note
+    // Set the archived status of a note
     @Transactional
-    public Optional<Note> archiveNoteStatus(Long id,boolean archived){
+    public Optional<Note> archiveNoteStatus(Long id, boolean archived) {
         return noteRepository.findById(id)
-            .map(note -> {
-                note.setArchived(archived);
-                return noteRepository.save(note);
-            });
+                .map(note -> {
+                    note.setArchived(archived);
+                    return note;
+                });
     }
-
 
 }

@@ -69,17 +69,6 @@ public class User implements UserDetails{
         this.password = password;
     }
 
-
-    
-    
-    
-
-
-
-
-
-
-
 }
 
     

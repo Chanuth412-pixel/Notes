@@ -6,7 +6,7 @@ import java.security.PrivateKey;
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity
+@Entity    // A table in the database
 public class Note {
 
     @Id
