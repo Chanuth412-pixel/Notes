@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import jakarta.annotation.PostConstruct;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Objects;
@@ -27,6 +28,8 @@ public class TagService {
                 new Tag(Tag.PERSONAL, "Personal thoughts and diary entries", "#9C27B0", true),
                 new Tag(Tag.EVENTS, "Events, meetings, and appointments", "#607D8B", true));
         predefinedTags.forEach(tag -> createSystemTagIfNotExists(tag));
+        // To add predefined tags only if they don't already exist
+
     }
 
     private void createSystemTagIfNotExists(Tag tag) {
@@ -95,4 +98,27 @@ public class TagService {
             throw new RuntimeException("Cannot delete system tag or tag not found");
         }
     }
+
+    // Resolves tags: Converts transient tag objects to managed entities
+    public List<Tag> resolveTags(List<Tag> tags) {
+        List<Tag> managedTags = new ArrayList<>(); // List to store the resolved tags
+
+        for (Tag tag : tags) {
+            // If the tag has a name and it's not empty
+            if (tag.getName() != null && !tag.getName().trim().isEmpty()) {
+                // Check if the tag exists in the database by name (case insensitive)
+                Tag existingTag = tagRepository.findByNameIgnoreCase(tag.getName())
+                        .orElseGet(() -> {
+                            // If the tag doesn't exist, create a new one
+                            Tag newTag = new Tag(tag.getName().trim());
+                            newTag.setSystemTag(false); // Set as custom tag
+                            return tagRepository.save(newTag); // Save and return the new tag
+                        });
+                managedTags.add(existingTag); // Add the resolved tag (either existing or new) to the list
+            }
+        }
+
+        return managedTags; // Return the List<Tag> containing resolved tags
+    }
+
 }

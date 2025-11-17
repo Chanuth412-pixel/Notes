@@ -3,7 +3,6 @@ package com.example.Notes.service;
 import com.example.Notes.model.Note;
 import com.example.Notes.model.Tag;
 import com.example.Notes.repository.NoteRepository;
-import com.example.Notes.repository.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,47 +17,22 @@ public class NoteService {
     private NoteRepository noteRepository;
 
     @Autowired
-    private TagRepository tagRepository;
+    private TagService tagService;
 
     // Method to save or update a note
-    @Transactional // To Ensure operations are atomic(If anything fails, rollback)
+    @Transactional
     public Note createOrUpdateNote(Note note) {
-        Objects.requireNonNull(note, "note must not be null"); // NullpointerException
+        Objects.requireNonNull(note, "note must not be null"); // Ensure the note is not null
 
-        // Resolve tags: convert transient tag objects to managed entities
-        Set<Tag> managedTags = tagService.resolveTags(note.getTags());
-        note.setTags(managedTags);
-        return noteRepository.save(note);
+        // Resolve tags: Convert transient tag objects to managed entities (either
+        // existing or new)
+        List<Tag> managedTags = tagService.resolveTags(new ArrayList<>(note.getTags())); // Convert Set to List for
+                                                                                         // resolveTags
 
-        // Should Refactor this
-        if (note.getTags() != null && !note.getTags().isEmpty()) {
-            Set<Tag> managedTags = new HashSet<>();
-            for (Tag tag : note.getTags()) {
-                if (tag.getId() != null && tag.getId() > 0) {
-                    // Tag has ID - fetch from database
-                    Long tagId = tag.getId();
-                    Optional<Tag> existingTag = tagRepository.findById(tagId);
-                    existingTag.ifPresent(managedTags::add);
-                } else if (tag.getName() != null && !tag.getName().trim().isEmpty()) {
-                    // Tag has name but no ID - find or create
-                    Tag managedTag = tagRepository.findByNameIgnoreCase(tag.getName().trim())
-                            .orElseGet(() -> {
-                                Tag newTag = new Tag(tag.getName().trim());
-                                newTag.setSystemTag(false); // User-created tags are not system tags
-                                if (tag.getDescription() != null) {
-                                    newTag.setDescription(tag.getDescription());
-                                }
-                                if (tag.getColor() != null) {
-                                    newTag.setColor(tag.getColor());
-                                }
-                                return tagRepository.save(newTag);
-                            });
-                    managedTags.add(managedTag);
-                }
-            }
-            note.setTags(managedTags);
-        }
+        // Set the resolved tags (List<Tag>) to the note
+        note.setTags(new HashSet<>(managedTags)); // Optionally convert back to Set if needed
 
+        // Save or update the note (depending on whether it's new or an update)
         return noteRepository.save(note);
     }
 
