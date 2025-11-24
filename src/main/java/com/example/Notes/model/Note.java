@@ -18,9 +18,9 @@ public class Note {
 
     private boolean archived;
 
-    @ManyToOne
+   /*  @ManyToOne
     @JoinColumn(name = "User_id")
-    private User user;
+    private User user;*/
     
     // Many notes belong to one category
     @ManyToOne

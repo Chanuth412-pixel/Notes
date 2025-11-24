@@ -1,4 +1,4 @@
-package com.example.Notes.model;
+/*package com.example.Notes.model;
 
 import jakarta.persistence.*;
 
@@ -19,9 +19,7 @@ public class User implements UserDetails{
     private String username;
     private String password;
 
-    @OneToMany(mappedBy = "user") //Foreign key is in Note entity(Many side)
-    private Set<Note> notes;
-
+    
     //Default constructor   
     public User(){}
 
@@ -69,7 +67,7 @@ public class User implements UserDetails{
         this.password = password;
     }
 
-}
+}*/
 
     
     
